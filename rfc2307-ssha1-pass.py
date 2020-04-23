@@ -15,10 +15,20 @@ from base64 import urlsafe_b64decode as decode
 # 123456789012345678901234
 
 def makeSecret(password):
-    salt = os.urandom(8)
-    h = hashlib.sha1(password.encode('utf-8'))
-    h.update(salt)
-    return "{SSHA}%s" % encode(h.digest() + salt).decode('utf-8')
+    res = False
+    while not res:
+        salt = os.urandom(8)
+        h = hashlib.sha1(password.encode('utf-8'))
+        h.update(salt)
+        secret = "{SSHA}%s" % encode(h.digest() + salt).decode('utf-8')
+        if '-' in secret:
+            res = False
+            continue
+        if '_' in secret:
+            res = False
+            continue
+        res = True
+    return secret
 
 def checkPassword(challenge_password, password):
     challenge_bytes = decode(challenge_password[6:])
